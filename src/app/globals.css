@@ -1,0 +1,97 @@
+@import "tailwindcss";
+
+:root {
+  --accent: #6366F1;
+  --accent-hover: #818CF8;
+  --accent-secondary: #8B5CF6;
+  --accent-coral: #D89575;
+  --accent-green: #3D8A5A;
+  --accent-green-bright: #4ADE80;
+  --accent-green-light: #3D8A5A14;
+  --sound-active: #22C55E;
+  --sound-active-dim: #16A34A;
+  --timer-warning: #F59E0B;
+
+  --bg-primary: #0A0A0A;
+  --bg-surface: #111111;
+  --bg-surface-dark: #1A1A1A;
+  --bg-surface-hover: #1a1a1a;
+  --bg-inset: #0d0d0d;
+  --bg-dark: #0A0A0A;
+
+  --text-primary: #FFFFFF;
+  --text-secondary: #A0A0A0;
+  --text-tertiary: #666666;
+  --text-muted: #444444;
+
+  --border: #FFFFFF1A;
+  --border-dark: #333333;
+  --border-subtle: #FFFFFF0D;
+  --glass-bg: #FFFFFF08;
+
+  --radius-sm: 6px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+  --radius-xl: 16px;
+  --radius-pill: 100px;
+
+  --font-inter: var(--font-inter-loaded);
+  --font-jetbrains: var(--font-jetbrains-loaded);
+}
+
+@theme inline {
+  --color-accent: var(--accent);
+  --color-accent-hover: var(--accent-hover);
+  --color-accent-secondary: var(--accent-secondary);
+  --color-accent-coral: var(--accent-coral);
+  --color-accent-green: var(--accent-green);
+  --color-accent-green-bright: var(--accent-green-bright);
+  --color-accent-green-light: var(--accent-green-light);
+  --color-sound-active: var(--sound-active);
+  --color-sound-active-dim: var(--sound-active-dim);
+  --color-timer-warning: var(--timer-warning);
+
+  --color-bg-primary: var(--bg-primary);
+  --color-bg-surface: var(--bg-surface);
+  --color-bg-surface-dark: var(--bg-surface-dark);
+  --color-bg-surface-hover: var(--bg-surface-hover);
+  --color-bg-inset: var(--bg-inset);
+  --color-bg-dark: var(--bg-dark);
+
+  --color-text-primary: var(--text-primary);
+  --color-text-secondary: var(--text-secondary);
+  --color-text-tertiary: var(--text-tertiary);
+  --color-text-muted: var(--text-muted);
+
+  --color-border: var(--border);
+  --color-border-dark: var(--border-dark);
+  --color-border-subtle: var(--border-subtle);
+  --color-glass-bg: var(--glass-bg);
+
+  --radius-sm: var(--radius-sm);
+  --radius-md: var(--radius-md);
+  --radius-lg: var(--radius-lg);
+  --radius-xl: var(--radius-xl);
+  --radius-pill: var(--radius-pill);
+
+  --font-sans: var(--font-inter);
+  --font-mono: var(--font-jetbrains);
+}
+
+body {
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  font-family: var(--font-inter), system-ui, sans-serif;
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+}
+::-webkit-scrollbar-track {
+  background: var(--bg-primary);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--border-dark);
+  border-radius: 3px;
+}
