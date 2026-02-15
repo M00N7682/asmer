@@ -7,12 +7,16 @@ import { CategoryTabs } from "@/components/mixer/CategoryTabs";
 import { SoundGrid } from "@/components/mixer/SoundGrid";
 import { MasterVolume } from "@/components/mixer/MasterVolume";
 import { TimerCircle } from "@/components/timer/TimerCircle";
+import { AnimationCanvas } from "@/components/animations/AnimationCanvas";
+import { AnimationPicker } from "@/components/animations/AnimationPicker";
 import { useAudioStore } from "@/store/audio-store";
 import { useTimerStore } from "@/store/timer-store";
+import { useAnimationStore } from "@/store/animation-store";
 import { type SoundCategory } from "@/audio/sounds";
 import {
   Pause, Play, SkipForward, RotateCcw,
   CloudRain, Moon, Trees, Code,
+  Maximize2,
 } from "lucide-react";
 
 const quickPresets = [
@@ -26,6 +30,7 @@ export default function MixerPage() {
   const [category, setCategory] = useState<SoundCategory>("All");
   const audioStore = useAudioStore();
   const timer = useTimerStore();
+  const openImmersion = useAnimationStore((s) => s.openImmersion);
 
   const activeCount = Object.values(audioStore.sounds).filter((s) => s.active).length;
   const totalSeconds = timer.phase === "focus"
@@ -35,9 +40,12 @@ export default function MixerPage() {
     : timer.settings.longBreakMinutes * 60;
 
   return (
-    <div className="min-h-screen bg-bg-primary flex flex-col">
+    <div className="min-h-screen bg-bg-primary flex flex-col relative">
+      {/* Background animation layer */}
+      <AnimationCanvas />
+
       <Navbar />
-      <div className="flex flex-col lg:flex-row gap-6 lg:gap-8 p-4 md:p-8 flex-1 pb-20 md:pb-8">
+      <div className="flex flex-col lg:flex-row gap-6 lg:gap-8 p-4 md:p-8 flex-1 pb-20 md:pb-8 relative z-10">
         {/* Main content */}
         <div className="flex flex-col gap-4 md:gap-6 flex-1">
           {/* Header */}
@@ -50,14 +58,23 @@ export default function MixerPage() {
                 Create Your Soundscape
               </h1>
             </div>
-            {activeCount > 0 && (
-              <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-[#22C55E15] border border-[#22C55E33]">
-                <div className="w-1.5 h-1.5 rounded-full bg-sound-active" />
-                <span className="text-[11px] font-mono font-medium text-sound-active">
-                  {activeCount} active
-                </span>
-              </div>
-            )}
+            <div className="flex items-center gap-3">
+              {activeCount > 0 && (
+                <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-[#22C55E12] border border-[#22C55E28]">
+                  <div className="w-1.5 h-1.5 rounded-full bg-sound-active" />
+                  <span className="text-[11px] font-mono font-medium text-sound-active">
+                    {activeCount} active
+                  </span>
+                </div>
+              )}
+              <button
+                onClick={openImmersion}
+                className="hidden sm:flex items-center gap-2 px-4 py-2 rounded-[var(--radius-lg)] bg-accent text-white text-sm font-semibold hover:bg-accent-hover transition-colors cursor-pointer"
+              >
+                <Maximize2 className="w-4 h-4" />
+                Focus Mode
+              </button>
+            </div>
           </div>
 
           {/* Category tabs */}
@@ -71,7 +88,7 @@ export default function MixerPage() {
         </div>
 
         {/* Sidebar */}
-        <div className="hidden lg:flex flex-col gap-6 w-80">
+        <div className="hidden lg:flex flex-col gap-5 w-80">
           {/* Master Volume */}
           <MasterVolume />
 
@@ -114,6 +131,31 @@ export default function MixerPage() {
               </button>
             </div>
           </div>
+
+          {/* Focus Mode Card */}
+          <button
+            onClick={openImmersion}
+            className="flex flex-col gap-3 p-5 rounded-[var(--radius-xl)] bg-bg-surface border border-border hover:border-[#6366F130] transition-all cursor-pointer group text-left"
+          >
+            <div className="flex items-center justify-between w-full">
+              <span className="text-[10px] font-semibold tracking-[2px] text-accent">
+                FOCUS MODE
+              </span>
+              <Maximize2 className="w-3.5 h-3.5 text-text-muted group-hover:text-accent transition-colors" />
+            </div>
+            <p className="text-[12px] text-text-tertiary leading-relaxed">
+              Fullscreen immersive visuals with warp animation. Timer auto-starts.
+            </p>
+            <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-[#6366F110] border border-[#6366F120] self-start">
+              <div className="w-1.5 h-1.5 rounded-full bg-accent" />
+              <span className="text-[10px] font-mono font-medium text-accent">
+                Enter Focus
+              </span>
+            </div>
+          </button>
+
+          {/* Animation Picker */}
+          <AnimationPicker />
 
           {/* Quick Presets */}
           <div className="flex flex-col gap-3 p-5 rounded-[var(--radius-xl)] bg-bg-surface border border-border">

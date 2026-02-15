@@ -1,6 +1,7 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 import { audioEngine } from "@/audio/engine";
+import { trackSoundToggle, trackMasterVolume } from "@/lib/analytics";
 
 interface SoundState {
   volume: number;
@@ -33,6 +34,7 @@ export const useAudioStore = create<AudioStore>()(
           } else {
             audioEngine.stopSound(id);
           }
+          trackSoundToggle(id, newActive);
           return {
             sounds: {
               ...state.sounds,
@@ -57,6 +59,7 @@ export const useAudioStore = create<AudioStore>()(
 
       setMasterVolume: (volume) => {
         audioEngine.setMasterVolume(volume);
+        trackMasterVolume(volume);
         set({ masterVolume: volume });
       },
 

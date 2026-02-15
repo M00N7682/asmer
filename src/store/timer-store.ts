@@ -1,5 +1,6 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
+import { trackTimerStart, trackTimerPause, trackTimerReset, trackTimerSkip } from "@/lib/analytics";
 
 export type TimerPhase = "focus" | "shortBreak" | "longBreak";
 
@@ -65,6 +66,7 @@ export const useTimerStore = create<TimerStore>()(
   startTimer: () => {
     const state = get();
     if (state.isRunning) return;
+    trackTimerStart(state.phase, phaseMinutes(state.phase, state.settings));
     const id = setInterval(() => {
       const s = get();
       if (s.remaining <= 0) {
@@ -79,12 +81,14 @@ export const useTimerStore = create<TimerStore>()(
   pauseTimer: () => {
     const state = get();
     if (state.intervalId) clearInterval(state.intervalId);
+    trackTimerPause(state.phase, state.remaining);
     set({ isRunning: false, intervalId: null });
   },
 
   resetTimer: () => {
     const state = get();
     if (state.intervalId) clearInterval(state.intervalId);
+    trackTimerReset(state.phase);
     set({
       remaining: phaseMinutes(state.phase, state.settings) * 60,
       isRunning: false,
@@ -104,6 +108,7 @@ export const useTimerStore = create<TimerStore>()(
       if (state.phase === "longBreak") nextSession = 1;
       else nextSession = state.currentSession + 1;
     }
+    trackTimerSkip(state.phase, nextPhase);
     set({
       phase: nextPhase,
       remaining: phaseMinutes(nextPhase, state.settings) * 60,

@@ -53,7 +53,7 @@ export function TimerCircle({
           cy={offset + cy}
           r={r}
           fill="none"
-          stroke="#1a1a1a"
+          stroke="#1C1C22"
           strokeWidth={strokeWidth}
         />
         {/* Progress ring */}

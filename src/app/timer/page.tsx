@@ -3,13 +3,16 @@
 import Link from "next/link";
 import { Navbar } from "@/components/layout/Navbar";
 import { TimerCircle } from "@/components/timer/TimerCircle";
+import { AnimationCanvas } from "@/components/animations/AnimationCanvas";
 import { useTimerStore, type TimerPhase } from "@/store/timer-store";
 import { useAudioStore } from "@/store/audio-store";
+import { useAnimationStore } from "@/store/animation-store";
 import { sounds as soundList } from "@/audio/sounds";
 import { cn } from "@/lib/utils";
 import {
   Brain, Coffee, Sunset,
   Pause, Play, SkipForward, RotateCcw,
+  Maximize2, Clock, Zap, Flame, TrendingUp,
 } from "lucide-react";
 
 const phases: { key: TimerPhase; label: string; icon: typeof Brain }[] = [
@@ -18,9 +21,17 @@ const phases: { key: TimerPhase; label: string; icon: typeof Brain }[] = [
   { key: "longBreak", label: "Long Break", icon: Sunset },
 ];
 
+const todayStats = [
+  { icon: Clock, label: "Total Time", value: "2h 15m", color: "text-accent" },
+  { icon: Zap, label: "Sessions", value: "5", color: "text-accent-secondary" },
+  { icon: Flame, label: "Focus Rate", value: "87%", color: "text-timer-warning" },
+  { icon: TrendingUp, label: "Streak", value: "7 days", color: "text-sound-active" },
+];
+
 export default function TimerPage() {
   const timer = useTimerStore();
   const audioStore = useAudioStore();
+  const openImmersion = useAnimationStore((s) => s.openImmersion);
 
   const totalSeconds =
     timer.phase === "focus"
@@ -41,9 +52,10 @@ export default function TimerPage() {
     .filter(Boolean) as (typeof soundList[0] & { volume: number })[];
 
   return (
-    <div className="min-h-screen bg-bg-primary flex flex-col">
+    <div className="min-h-screen bg-bg-primary flex flex-col relative">
+      <AnimationCanvas />
       <Navbar />
-      <div className="flex flex-col lg:flex-row gap-8 lg:gap-16 px-5 md:px-20 py-8 md:py-12 flex-1 pb-20 md:pb-12">
+      <div className="flex flex-col lg:flex-row gap-8 lg:gap-16 px-5 md:px-20 py-8 md:py-12 flex-1 pb-20 md:pb-12 relative z-10">
         {/* Timer Main */}
         <div className="flex flex-col items-center gap-6 md:gap-10 flex-1">
           {/* Header */}
@@ -121,6 +133,16 @@ export default function TimerPage() {
             >
               <RotateCcw className="w-[18px] h-[18px]" />
             </button>
+
+            <div className="w-px h-8 bg-border mx-1" />
+
+            <button
+              onClick={openImmersion}
+              className="flex items-center gap-2 px-4 py-2.5 rounded-full bg-[#6366F115] border border-[#6366F130] text-accent text-xs font-medium hover:bg-[#6366F125] transition-colors cursor-pointer"
+            >
+              <Maximize2 className="w-3.5 h-3.5" />
+              Focus Mode
+            </button>
           </div>
 
           {/* Session dots */}
@@ -134,7 +156,7 @@ export default function TimerPage() {
                     ? isBreak ? "bg-accent-green-bright" : "bg-accent"
                     : i === timer.currentSession - 1
                     ? isBreak ? "bg-accent-green-bright/70" : "bg-accent/70"
-                    : "bg-[#1a1a1a] border border-border"
+                    : "bg-bg-surface-dark border border-border"
                 )}
               />
             ))}
@@ -145,7 +167,25 @@ export default function TimerPage() {
         </div>
 
         {/* Sidebar */}
-        <div className="flex flex-col gap-6 w-full lg:w-[380px]">
+        <div className="flex flex-col gap-5 w-full lg:w-[380px]">
+          {/* Today's Focus Stats */}
+          <div className="flex flex-col gap-4 p-6 rounded-[var(--radius-xl)] bg-bg-surface border border-border">
+            <span className="text-[10px] font-semibold tracking-[2px] text-accent-secondary">
+              TODAY&apos;S FOCUS
+            </span>
+            <div className="grid grid-cols-2 gap-3">
+              {todayStats.map((stat) => (
+                <div key={stat.label} className="flex flex-col gap-1.5 p-3 rounded-[var(--radius-lg)] bg-bg-surface-dark">
+                  <div className="flex items-center gap-1.5">
+                    <stat.icon className={cn("w-3.5 h-3.5", stat.color)} />
+                    <span className="text-[10px] text-text-muted">{stat.label}</span>
+                  </div>
+                  <span className="text-lg font-bold font-mono text-text-primary">{stat.value}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+
           {/* Timer Settings */}
           <div className="flex flex-col gap-5 p-6 rounded-[var(--radius-xl)] bg-bg-surface border border-border">
             <span className="text-[10px] font-semibold tracking-[2px] text-accent">

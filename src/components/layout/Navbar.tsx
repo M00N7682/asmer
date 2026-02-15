@@ -1,8 +1,10 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { ArrowRight, Volume2 } from "lucide-react";
+import { Maximize2 } from "lucide-react";
+import { useAnimationStore } from "@/store/animation-store";
 import { cn } from "@/lib/utils";
 
 const links = [
@@ -13,23 +15,25 @@ const links = [
 
 export function Navbar() {
   const pathname = usePathname();
+  const openImmersion = useAnimationStore((s) => s.openImmersion);
 
   return (
-    <nav className="flex items-center justify-between h-14 md:h-16 px-4 md:px-8 bg-[#0A0A0ACC] backdrop-blur-md border-b border-border sticky top-0 z-50">
+    <nav className="flex items-center justify-between h-14 md:h-16 px-5 md:px-8 bg-[#0B0B0ECC] backdrop-blur-xl sticky top-0 z-50">
       <div className="flex items-center gap-4 md:gap-8">
-        <Link href="/" className="text-lg md:text-xl font-bold tracking-[3px] text-text-primary">
-          ASMER
+        <Link href="/" className="flex items-center gap-2.5">
+          <Image src="/logo.svg" alt="ASMER" width={28} height={28} />
+          <span className="text-lg md:text-xl font-bold tracking-[3px] text-text-primary">ASMER</span>
         </Link>
-        <div className="hidden md:block w-1.5 h-1.5 rounded-full bg-accent" />
+        <div className="hidden md:block w-1 h-1 rounded-full bg-text-muted" />
         <div className="hidden md:flex items-center gap-7">
           {links.map((link) => (
             <Link
               key={link.href}
               href={link.href}
               className={cn(
-                "text-sm font-medium transition-colors",
+                "text-[13px] font-medium transition-colors",
                 pathname === link.href
-                  ? "text-accent"
+                  ? "text-text-primary"
                   : "text-text-tertiary hover:text-text-secondary"
               )}
             >
@@ -38,17 +42,13 @@ export function Navbar() {
           ))}
         </div>
       </div>
-      <div className="flex items-center gap-3 md:gap-4">
-        <Volume2 className="w-5 h-5 text-text-secondary hidden md:block" />
-        <Link
-          href="/mix"
-          className="flex items-center gap-1.5 px-3 md:px-4 py-1.5 md:py-2 text-xs md:text-[13px] font-semibold text-white bg-accent rounded-full"
-        >
-          <span className="hidden sm:inline">Start Mixing</span>
-          <span className="sm:hidden">Mix</span>
-          <ArrowRight className="w-3.5 h-3.5" />
-        </Link>
-      </div>
+      <button
+        onClick={openImmersion}
+        className="hidden md:flex items-center gap-2 px-4 py-2 rounded-[var(--radius-lg)] bg-accent text-white text-[13px] font-semibold hover:bg-accent-hover transition-colors cursor-pointer"
+      >
+        <Maximize2 className="w-4 h-4" />
+        Focus Mode
+      </button>
     </nav>
   );
 }

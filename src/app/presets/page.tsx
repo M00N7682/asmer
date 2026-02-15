@@ -4,28 +4,55 @@ import { useState } from "react";
 import Link from "next/link";
 import { Navbar } from "@/components/layout/Navbar";
 import { PresetSaveModal } from "@/components/presets/PresetSaveModal";
-import { defaultPresets } from "@/data/default-presets";
+import { defaultPresets, type Preset } from "@/data/default-presets";
 import { useAudioStore } from "@/store/audio-store";
 import { Search, Plus, Play, Bookmark } from "lucide-react";
+import { cn } from "@/lib/utils";
+
+const filterTabs = ["All", "Focus", "Sleep", "Relax", "Nature"] as const;
+type FilterTab = (typeof filterTabs)[number];
+
+const presetCategories: Record<string, FilterTab> = {
+  "rainy-cafe": "Focus",
+  "deep-night": "Sleep",
+  "forest-cabin": "Nature",
+  "library": "Focus",
+  "coding-mode": "Focus",
+  "train-journey": "Relax",
+  "lofi-room": "Relax",
+  "beach": "Nature",
+};
+
+const categoryColors: Record<FilterTab, { text: string; bg: string }> = {
+  All: { text: "text-text-secondary", bg: "bg-bg-surface-dark" },
+  Focus: { text: "text-accent", bg: "bg-[#6366F115]" },
+  Sleep: { text: "text-accent-secondary", bg: "bg-[#8B5CF615]" },
+  Relax: { text: "text-timer-warning", bg: "bg-[#F59E0B15]" },
+  Nature: { text: "text-sound-active", bg: "bg-[#22C55E15]" },
+};
 
 export default function PresetsPage() {
   const [search, setSearch] = useState("");
+  const [activeFilter, setActiveFilter] = useState<FilterTab>("All");
   const [modalOpen, setModalOpen] = useState(false);
   const audioStore = useAudioStore();
 
-  const filtered = defaultPresets.filter(
-    (p) =>
+  const filtered = defaultPresets.filter((p) => {
+    const matchesSearch =
       p.name.toLowerCase().includes(search.toLowerCase()) ||
-      p.description.toLowerCase().includes(search.toLowerCase())
-  );
+      p.description.toLowerCase().includes(search.toLowerCase());
+    const matchesFilter =
+      activeFilter === "All" || presetCategories[p.id] === activeFilter;
+    return matchesSearch && matchesFilter;
+  });
 
   return (
     <div className="min-h-screen bg-bg-primary flex flex-col">
       <Navbar />
 
-      <div className="flex flex-col gap-8 md:gap-12 px-4 md:px-20 py-6 md:py-8 pb-20 md:pb-16">
+      <div className="flex flex-col gap-8 md:gap-10 px-4 md:px-20 py-6 md:py-8 pb-20 md:pb-16">
         {/* Header */}
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div className="flex flex-col md:flex-row md:items-start justify-between gap-4">
           <div className="flex flex-col gap-1">
             <span className="text-[11px] font-semibold tracking-[2px] text-accent">
               PRESET GALLERY
@@ -37,7 +64,18 @@ export default function PresetsPage() {
               Curated sound combinations to help you focus, relax, or work.
             </p>
           </div>
-          <div className="flex items-center gap-2.5 px-4 py-2.5 rounded-[var(--radius-lg)] bg-bg-surface border border-border w-full md:w-[280px]">
+          <button
+            onClick={() => setModalOpen(true)}
+            className="flex items-center gap-2 px-5 py-2.5 rounded-[var(--radius-lg)] bg-accent text-white text-[13px] font-semibold hover:bg-accent-hover transition-colors cursor-pointer self-start"
+          >
+            <Plus className="w-4 h-4" />
+            Create New
+          </button>
+        </div>
+
+        {/* Search + Filter */}
+        <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3">
+          <div className="flex items-center gap-2.5 px-4 py-2.5 rounded-[var(--radius-lg)] bg-bg-surface border border-border w-full sm:w-[280px]">
             <Search className="w-4 h-4 text-text-muted shrink-0" />
             <input
               type="text"
@@ -46,6 +84,22 @@ export default function PresetsPage() {
               onChange={(e) => setSearch(e.target.value)}
               className="bg-transparent text-[13px] text-text-primary placeholder:text-text-muted focus:outline-none w-full"
             />
+          </div>
+          <div className="flex items-center gap-2 overflow-x-auto">
+            {filterTabs.map((tab) => (
+              <button
+                key={tab}
+                onClick={() => setActiveFilter(tab)}
+                className={cn(
+                  "flex items-center px-3.5 py-1.5 rounded-full text-xs font-medium transition-colors cursor-pointer whitespace-nowrap",
+                  activeFilter === tab
+                    ? "bg-accent text-white"
+                    : "bg-glass-bg text-text-tertiary border border-border hover:bg-bg-surface-hover"
+                )}
+              >
+                {tab}
+              </button>
+            ))}
           </div>
         </div>
 
@@ -61,44 +115,53 @@ export default function PresetsPage() {
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-5">
-            {filtered.map((preset) => (
-              <div
-                key={preset.id}
-                className="flex flex-col rounded-[var(--radius-xl)] border border-border bg-bg-surface overflow-hidden"
-              >
+            {filtered.map((preset) => {
+              const cat = presetCategories[preset.id] || "Focus";
+              const catColor = categoryColors[cat];
+              return (
                 <div
-                  className="relative h-20 w-full"
-                  style={{
-                    background: `linear-gradient(180deg, ${preset.gradientFrom}, ${preset.gradientTo})`,
-                  }}
+                  key={preset.id}
+                  className="flex flex-col rounded-[var(--radius-xl)] border border-border bg-bg-surface overflow-hidden"
                 >
-                  <div className="absolute w-[60px] h-[60px] rounded-full opacity-50 left-5 top-[30px]" style={{ background: "rgba(99,102,241,0.08)" }} />
-                  <div className="absolute w-20 h-20 rounded-full opacity-40 left-20 top-5" style={{ background: "rgba(99,102,241,0.06)" }} />
-                </div>
-                <div className="flex flex-col gap-3 px-5 pb-5">
-                  <h3 className="text-base font-semibold text-text-primary">
-                    {preset.name}
-                  </h3>
-                  <p className="text-[11px] font-mono text-text-tertiary">
-                    {preset.description}
-                  </p>
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-2">
-                      {preset.icons.map((Icon, i) => (
-                        <Icon key={i} className="w-3.5 h-3.5 text-text-muted" />
-                      ))}
+                  <div
+                    className="relative h-20 w-full"
+                    style={{
+                      background: `linear-gradient(180deg, ${preset.gradientFrom}, ${preset.gradientTo})`,
+                    }}
+                  >
+                    <div className="absolute w-[60px] h-[60px] rounded-full opacity-50 left-5 top-[30px]" style={{ background: "rgba(99,102,241,0.08)" }} />
+                    <div className="absolute w-20 h-20 rounded-full opacity-40 left-20 top-5" style={{ background: "rgba(99,102,241,0.06)" }} />
+                  </div>
+                  <div className="flex flex-col gap-3 px-5 pb-5">
+                    <div className="flex items-center justify-between">
+                      <h3 className="text-base font-semibold text-text-primary">
+                        {preset.name}
+                      </h3>
+                      <span className={cn("text-[9px] font-semibold px-2 py-0.5 rounded-full", catColor.text, catColor.bg)}>
+                        {cat}
+                      </span>
                     </div>
-                    <button
-                      onClick={() => audioStore.applyPreset(preset.soundIds)}
-                      className="flex items-center gap-1 px-3 py-1.5 text-xs font-medium text-white bg-accent rounded-full hover:bg-accent-hover transition-colors cursor-pointer"
-                    >
-                      <Play className="w-3 h-3" />
-                      Play
-                    </button>
+                    <p className="text-[11px] font-mono text-text-tertiary">
+                      {preset.description}
+                    </p>
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        {preset.icons.map((Icon, i) => (
+                          <Icon key={i} className="w-3.5 h-3.5 text-text-muted" />
+                        ))}
+                      </div>
+                      <button
+                        onClick={() => audioStore.applyPreset(preset.soundIds)}
+                        className="flex items-center gap-1 px-3 py-1.5 text-xs font-medium text-white bg-accent rounded-full hover:bg-accent-hover transition-colors cursor-pointer"
+                      >
+                        <Play className="w-3 h-3" />
+                        Play
+                      </button>
+                    </div>
                   </div>
                 </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         </div>
 
@@ -108,13 +171,6 @@ export default function PresetsPage() {
             <h2 className="text-lg font-semibold text-text-primary">
               My Saved Presets
             </h2>
-            <button
-              onClick={() => setModalOpen(true)}
-              className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-glass-bg border border-border text-accent text-xs font-medium hover:bg-bg-surface-hover transition-colors cursor-pointer"
-            >
-              <Plus className="w-3.5 h-3.5" />
-              New Preset
-            </button>
           </div>
 
           {/* Empty state */}
